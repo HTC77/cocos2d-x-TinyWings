@@ -25,8 +25,6 @@
 #include "HelloWorldScene.h"
 #include "SimpleAudioEngine.h"
 
-USING_NS_CC;
-
 Scene* HelloWorld::createScene()
 {
     return HelloWorld::create();
@@ -49,7 +47,8 @@ bool HelloWorld::init()
         return false;
     }
 
-    auto visibleSize = Director::getInstance()->getVisibleSize();
+    visibleSize = Director::getInstance()->getVisibleSize();
+    winSize = Director::getInstance()->getWinSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     /////////////////////////////
@@ -82,39 +81,18 @@ bool HelloWorld::init()
 
     /////////////////////////////
     // 3. add your codes below...
+	
+	// background
+	_background = new Sprite();
+	this->genBackground();
+	
+	// touch listener
+	auto touchListener =
+		EventListenerTouchOneByOne::create();
+	touchListener->onTouchBegan = CC_CALLBACK_2(HelloWorld::touchBegan, this);
+	getEventDispatcher()->addEventListenerWithSceneGraphPriority(
+		touchListener, this);
 
-    // add a label shows "Hello World"
-    // create and initialize a label
-
-    auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
-    if (label == nullptr)
-    {
-        problemLoading("'fonts/Marker Felt.ttf'");
-    }
-    else
-    {
-        // position the label on the center of the screen
-        label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                                origin.y + visibleSize.height - label->getContentSize().height));
-
-        // add the label as a child to this layer
-        this->addChild(label, 1);
-    }
-
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
-    if (sprite == nullptr)
-    {
-        problemLoading("'HelloWorld.png'");
-    }
-    else
-    {
-        // position the sprite on the center of the screen
-        sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
-        // add the sprite as a child to this layer
-        this->addChild(sprite, 0);
-    }
     return true;
 }
 
@@ -130,4 +108,51 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
     //_eventDispatcher->dispatchEvent(&customEndEvent);
 
 
+}
+
+void HelloWorld::genBackground()
+{
+	_background->removeFromParentAndCleanup(true);
+	Color4F bgColor = randomBrightColor();
+	_background = spriteWithColor(512, 512, bgColor);
+	_background->setPosition(visibleSize / 2);
+
+	this->addChild(_background);
+}
+
+Sprite* HelloWorld::spriteWithColor(int textureWidth, int textureHeight,
+	Color4F bgColor)
+{
+	// 1: Create CCRenderTexture
+	RenderTexture *rt = RenderTexture::create(textureWidth, textureHeight);
+
+	// 2: Call CCRenderTexture:begin
+	rt->beginWithClear(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+
+	// 4: Call CCRenderTexture:end
+	rt->end();
+
+	// 5: create new sprite from the texture
+	return Sprite::createWithTexture(rt->getSprite()->getTexture());
+}
+
+Color4F HelloWorld::randomBrightColor()
+{
+	int requiredBrightness = 192;
+	Color4B color;
+	while (true)
+	{
+		color = Color4B(rand() % 255, rand() % 255, rand() % 255, 255);
+		if (color.r > requiredBrightness
+			|| color.g > requiredBrightness
+			|| color.b > requiredBrightness)
+			break;
+	}
+	return Color4F(color);
+}
+
+bool HelloWorld::touchBegan(Touch* touch, Event* event)
+{
+	this->genBackground();
+	return true;
 }

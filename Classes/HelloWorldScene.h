@@ -26,6 +26,7 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+USING_NS_CC;
 
 class HelloWorld : public cocos2d::Scene
 {
@@ -39,6 +40,14 @@ public:
     
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
+	Size visibleSize, winSize;
+	void genBackground();
+	Sprite* _background;
+	Sprite* spriteWithColor(int textureWidth, int textureHeight, Color4F bgColor);
+	Sprite* stripedSpriteWithColor(int textureWidth, int textureHeight,
+		Color4F color, Color4F color2, int nStripes);
+	Color4F randomBrightColor();
+	bool touchBegan(Touch* touch, Event* event);
 };
 
 #endif // __HELLOWORLD_SCENE_H__
