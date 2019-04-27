@@ -106,8 +106,6 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 
     //EventCustom customEndEvent("game_scene_close_event");
     //_eventDispatcher->dispatchEvent(&customEndEvent);
-
-
 }
 
 void HelloWorld::genBackground()
@@ -128,6 +126,48 @@ Sprite* HelloWorld::spriteWithColor(int textureWidth, int textureHeight,
 
 	// 2: Call CCRenderTexture:begin
 	rt->beginWithClear(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
+	
+	// 3: Draw on texture
+
+	// draw gradiant
+	float gradiantAlpha = 0.7;
+	int nVertices = 0;
+	Color4F colors[48];
+	Point vertices[48];
+	this->setGLProgram(
+		GLProgramCache::getInstance()->getGLProgram(
+			GLProgram::SHADER_NAME_POSITION_COLOR));
+
+	CC_NODE_DRAW_SETUP();
+	
+	vertices[nVertices] = Point(0, 0);
+	colors[nVertices++] = Color4F(0, 0, 0, 0);
+
+	vertices[nVertices] = Point(textureWidth, 0);
+	colors[nVertices++] = Color4F(0, 0, 0, 0);
+
+	vertices[nVertices] = Point(0, textureHeight);
+	colors[nVertices++] = Color4F(0, 0, 0, gradiantAlpha);
+
+	vertices[nVertices] = Point(textureWidth, textureHeight);
+	colors[nVertices++] = Color4F(0, 0, 0, gradiantAlpha);
+
+	glEnable(GL::VERTEX_ATTRIB_FLAG_COLOR | GL::VERTEX_ATTRIB_FLAG_POSITION);
+	glVertexAttribPointer(GL::VERTEX_ATTRIB_FLAG_POSITION, 2,
+		GL_FLOAT, GL_FALSE, 0, vertices);
+	glVertexAttribPointer(GL::VERTEX_ATTRIB_FLAG_COLOR, 4,
+		GL_FLOAT, GL_TRUE, 0, colors);
+	glBlendFunc(CC_BLEND_SRC, CC_BLEND_DST);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, static_cast<GLsizei>(nVertices));
+
+	// add noise
+	BlendFunc blendFunc;
+	blendFunc.dst = GL_ZERO;
+	blendFunc.src = GL_DST_COLOR;
+	Sprite* noise = Sprite::create("Noise-hd.png");
+	noise->setBlendFunc(blendFunc);
+	noise->setPosition(Vec2(textureWidth / 2, textureHeight / 2));
+	noise->visit();
 
 	// 4: Call CCRenderTexture:end
 	rt->end();
