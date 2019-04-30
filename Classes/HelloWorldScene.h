@@ -41,13 +41,15 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
 	Size visibleSize, winSize;
+	Vec2 origin;
 	void genBackground();
 	Sprite* _background;
-	Sprite* spriteWithColor(int textureWidth, int textureHeight, Color4F bgColor);
-	Sprite* stripedSpriteWithColor(int textureWidth, int textureHeight,
-		Color4F color, Color4F color2, int nStripes);
+	Sprite* spriteWithColor(float textureWidth, float textureHeight, Color4F bgColor);
 	Color4F randomBrightColor();
 	bool touchBegan(Touch* touch, Event* event);
+	void update(float delta) override;
+	CustomCommand _customCommand;
+	void onDraw(float textureWidth, float textureHeight);
 };
 
 #endif // __HELLOWORLD_SCENE_H__
