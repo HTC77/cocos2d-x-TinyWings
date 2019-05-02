@@ -2,8 +2,9 @@
 #define __TinyWings__Terrain__
 
 #define kMaxHillKeyPoints 1000
-#define kHillSegmentWidth 10
-
+#define kHillSegmentWidth 2
+#define kMaxHillVertices 4000
+#define kMaxBorderVertices 800
 #pragma once
 
 #include "cocos2d.h"
@@ -22,12 +23,18 @@ public:
 	void onDrawHills();
 	DrawNode* drawNode;
 	CustomCommand _customCommand;
+	CREATE_FUNC(Terrain);
 
 	int _fromKeyPointI;
 	int _toKeyPointI;
 	Vec2 _hillKeyPoints[kMaxHillKeyPoints];
-    CREATE_FUNC(Terrain);
 
+	int _nBorderVertices;
+	int _nHillVertices;
+	Vec2 _hillVertices[kMaxHillVertices];
+	Vec2 _hillTexCoords[kMaxHillVertices];
+	Vec2 _borderVertices[kMaxBorderVertices];
+	Sprite* _stripes;
 };
 
 #endif // __TinyWings__Terrain__

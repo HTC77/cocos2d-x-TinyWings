@@ -52,9 +52,11 @@ public:
 	bool touchBegan(Touch* touch, Event* event);
 	void update(float delta) override;
 	CustomCommand _customCommand;
+	CustomCommand _stripesCommand;
 	void onDraw(float textureWidth, float textureHeight);
 	void onDrawStripes(float textureWidth, float textureHeight, int nStripes, Color4F color2);
 	::Terrain* _terrain;
+	Sprite* _stripes;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

@@ -15,15 +15,21 @@ bool ::Terrain::init()
 	_fromKeyPointI = 0;
 	_toKeyPointI = 0;
 	drawNode = DrawNode::create();
+	_stripes = new Sprite();
 	this->addChild(drawNode);
 	this->generateHills();
 	this->resetHillVertices();
-
+	this->setGLProgram(
+		GLProgramCache::getInstance()->getGLProgram(
+			GLProgram::SHADER_NAME_POSITION_TEXTURE));
     return true;
 }
 
 void ::Terrain::resetHillVertices()
 {
+	static int prevFromKeyPointI = -1;
+	static int prevToKeyPointI = -1;
+
 	// key point interval for drawing
 	while (_hillKeyPoints[_fromKeyPointI + 1].x < -winSize.width / 8 / this->getScale())
 	{
@@ -32,6 +38,50 @@ void ::Terrain::resetHillVertices()
 	while (_hillKeyPoints[_toKeyPointI].x < winSize.width * 12 / 8 / this->getScale())
 	{
 		_toKeyPointI++;
+	}
+
+	float minY = 0;
+
+	if (prevFromKeyPointI != _fromKeyPointI || prevToKeyPointI != _toKeyPointI)
+	{
+		_nHillVertices = 0;
+		_nBorderVertices = 0;
+		Vec2 p0, p1, pt0, pt1;
+		p0 = _hillKeyPoints[_fromKeyPointI];
+		for (int i = _fromKeyPointI + 1; i < _toKeyPointI + 1; ++i)
+		{
+			p1 = _hillKeyPoints[i];
+			int hSegments = floorf((p1.x - p0.x) / kHillSegmentWidth);
+			float dx = (p1.x - p0.x) / hSegments;
+			float da = M_PI / hSegments;
+			float ymid = (p0.y + p1.y) / 2;
+			float ampl = (p0.y - p1.y) / 2;
+			pt0 = p0;
+			_borderVertices[_nBorderVertices++] = pt0;
+			for (int j = 0; j < hSegments + 1; ++j)
+			{
+				pt1.x = p0.x + dx*j;
+				pt1.y = ymid + ampl*cosf(j*da);
+				_borderVertices[_nBorderVertices++] = pt1;
+
+				_hillVertices[_nHillVertices] = Point(pt0.x, 0 + minY);
+				_hillTexCoords[_nHillVertices++] = Point(pt0.x / 512, 1.0f);
+
+				_hillVertices[_nHillVertices] = Point(pt1.x, 0 + minY);
+				_hillTexCoords[_nHillVertices++] = Point(pt1.x / 512, 1.0f);
+
+				_hillVertices[_nHillVertices] = Point(pt0.x, pt1.y);
+				_hillTexCoords[_nHillVertices++] = Point(pt0.x / 512, 0);
+
+				_hillVertices[_nHillVertices] = Point(pt1.x, pt1.y);
+				_hillTexCoords[_nHillVertices++] = Point(pt1.x / 512, 0);
+
+				pt0 = pt1;
+			}
+			p0 = p1;
+		}
+		prevFromKeyPointI = _fromKeyPointI;
+		prevToKeyPointI = _toKeyPointI;
 	}
 }
 
@@ -44,31 +94,15 @@ void ::Terrain::draw(Renderer* renderer, const Mat4& transform, uint32_t flags)
 
 void ::Terrain::onDrawHills()
 {
-	drawNode->clear();
-	for (int i = MAX(_fromKeyPointI, 1); i <= _toKeyPointI; ++i)
-	{
-		drawNode->setColor(Color3B(Color4F(1.0, 1.0, 1.0, 1.0)));
-		drawNode->drawLine(_hillKeyPoints[i - 1], _hillKeyPoints[i],Color4F(drawNode->getColor()));
-
-		// sooth line 
-		drawNode->setColor(Color3B(Color4F(1, 0, 0.3, 1)));
-		Vec2 p0 = _hillKeyPoints[i - 1];
-		Vec2 p1 = _hillKeyPoints[i];
-		int hSegment = (p1.x - p0.x) / kHillSegmentWidth;
-		float dx = (p1.x - p0.x) / hSegment;
-		float da = M_PI / hSegment;
-		float ymid = (p0.y + p1.y) / 2;
-		float ampl = (p0.y - p1.y) / 2;
-		Vec2 pt0, pt1;
-		pt0 = p0;
-		for (int j = 0; j < hSegment + 1; ++j)
-		{
-			pt1.x = p0.x + dx*j;
-			pt1.y = ymid + ampl*cosf(da*j);
-			drawNode->drawLine(pt0, pt1,Color4F(drawNode->getColor()));
-			pt0 = pt1;
-		}
-	}
+	CC_NODE_DRAW_SETUP();
+	GL::bindTexture2D(_stripes->getTexture()->getName());
+	GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION |
+		GL::VERTEX_ATTRIB_FLAG_TEX_COORD);
+	glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 2,
+		GL_FLOAT, GL_FALSE, 0, _hillVertices);
+	glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2,
+		GL_FLOAT, GL_TRUE, 0, _hillTexCoords);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, static_cast<GLsizei>(_nHillVertices));
 }
 
 void ::Terrain::generateHills()

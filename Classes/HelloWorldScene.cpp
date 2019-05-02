@@ -84,6 +84,7 @@ bool HelloWorld::init()
 
 	// background + terrain
 	_background = new Sprite();
+	_stripes = new Sprite();
 	_terrain = ::Terrain::create();
 	this->addChild(_terrain);
 	this->genBackground();
@@ -94,11 +95,14 @@ bool HelloWorld::init()
 	touchListener->onTouchBegan = CC_CALLBACK_2(HelloWorld::touchBegan, this);
 	getEventDispatcher()->addEventListenerWithSceneGraphPriority(
 		touchListener, this);
-	
+
+	this->setGLProgram(
+		GLProgramCache::getInstance()->getGLProgram(
+			GLProgram::SHADER_NAME_POSITION_COLOR));
+
 	//scheduleUpdate();
 	return true;
 }
-
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
 {
@@ -114,17 +118,23 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 void HelloWorld::genBackground()
 {
 	_background->removeFromParentAndCleanup(true);
+	_stripes->removeFromParentAndCleanup(true);
+
 	Color4F bgColor = randomBrightColor();
 	_background = spriteWithColor(512, 512, bgColor);
-	/*Color4F color2 = randomBrightColor();
-	int stripes = (rand() % 4 + 1) * 2;
-	_background = stripedSpriteWithColor(512, 512, bgColor, color2, stripes);*/
-	_background->setPosition(visibleSize / 2);
 	Texture2D::TexParams p = { GL_LINEAR, GL_LINEAR,
 		GL_REPEAT, GL_REPEAT };
 	_background->getTexture()->setTexParameters(p);
-	//_background->getTexture()->setAntiAliasTexParameters();
-	this->addChild(_background,-1);
+	_background->setPosition(visibleSize / 2);
+	this->addChild(_background, -1);
+
+	Color4F color2 = randomBrightColor();
+	int stripes = (rand() % 4 + 1) * 2;
+	_stripes = stripedSpriteWithColor(512, 512, bgColor, color2, stripes);
+	_stripes->setPosition(Vec2(visibleSize.width / 2, -visibleSize.height));
+	_stripes->getTexture()->setAntiAliasTexParameters();
+	this->_terrain->_stripes = _stripes;
+	this->addChild(_stripes);
 }
 
 Sprite* HelloWorld::stripedSpriteWithColor(float textureWidth, float textureHeight, Color4F bgColor, Color4F color2,
@@ -141,11 +151,11 @@ Sprite* HelloWorld::stripedSpriteWithColor(float textureWidth, float textureHeig
 	noise->visit();
 
 	// Draw on texture
-	_customCommand.init(rt->getGlobalZOrder());
-	_customCommand.func = CC_CALLBACK_0(HelloWorld::onDrawStripes,
+	_stripesCommand.init(rt->getGlobalZOrder());
+	_stripesCommand.func = CC_CALLBACK_0(HelloWorld::onDrawStripes,
 		this, textureWidth, textureHeight, nStripes, color2);
 	auto renderer = Director::getInstance()->getRenderer();
-	renderer->addCommand(&_customCommand);
+	renderer->addCommand(&_stripesCommand);
 
 	rt->end();
 	return Sprite::createWithTexture(rt->getSprite()->getTexture());
@@ -217,10 +227,6 @@ void HelloWorld::update(float delta)
 
 void HelloWorld::onDraw(float textureWidth, float textureHeight)
 {
-	this->setGLProgram(
-		GLProgramCache::getInstance()->getGLProgram(
-			GLProgram::SHADER_NAME_POSITION_COLOR));
-
 	CC_NODE_DRAW_SETUP();
 
 	float gradientAlpha = 0.7f;
@@ -250,9 +256,6 @@ void HelloWorld::onDraw(float textureWidth, float textureHeight)
 
 void HelloWorld::onDrawStripes(float textureWidth, float textureHeight, int nStripes, Color4F color2)
 {
-	this->setGLProgram(
-		GLProgramCache::getInstance()->getGLProgram(
-			GLProgram::SHADER_NAME_POSITION_COLOR));
 	CC_NODE_DRAW_SETUP();
 
 	Color4F colors[48];
