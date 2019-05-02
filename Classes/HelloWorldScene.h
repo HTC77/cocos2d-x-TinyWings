@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+#include "Terrain.h"
 USING_NS_CC;
 
 class HelloWorld : public cocos2d::Scene
@@ -40,7 +41,7 @@ public:
 
 	// implement the "static create()" method manually
 	CREATE_FUNC(HelloWorld);
-	Size visibleSize, winSize;
+	Size visibleSize;
 	Vec2 origin;
 	void genBackground();
 	Sprite* _background;
@@ -53,6 +54,7 @@ public:
 	CustomCommand _customCommand;
 	void onDraw(float textureWidth, float textureHeight);
 	void onDrawStripes(float textureWidth, float textureHeight, int nStripes, Color4F color2);
+	::Terrain* _terrain;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

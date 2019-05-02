@@ -48,7 +48,6 @@ bool HelloWorld::init()
 	}
 
 	visibleSize = Director::getInstance()->getVisibleSize();
-	winSize = Director::getInstance()->getWinSize();
 	origin = Director::getInstance()->getVisibleOrigin();
 
 	/////////////////////////////
@@ -82,8 +81,11 @@ bool HelloWorld::init()
 	/////////////////////////////
 	// 3. add your codes below...
 
-	// background
+
+	// background + terrain
 	_background = new Sprite();
+	_terrain = ::Terrain::create();
+	this->addChild(_terrain);
 	this->genBackground();
 
 	// touch listener
@@ -93,8 +95,7 @@ bool HelloWorld::init()
 	getEventDispatcher()->addEventListenerWithSceneGraphPriority(
 		touchListener, this);
 	
-	scheduleUpdate();
-	
+	//scheduleUpdate();
 	return true;
 }
 
@@ -114,16 +115,16 @@ void HelloWorld::genBackground()
 {
 	_background->removeFromParentAndCleanup(true);
 	Color4F bgColor = randomBrightColor();
-	//_background = spriteWithColor(512, 512, bgColor);
-	Color4F color2 = randomBrightColor();
+	_background = spriteWithColor(512, 512, bgColor);
+	/*Color4F color2 = randomBrightColor();
 	int stripes = (rand() % 4 + 1) * 2;
-	_background = stripedSpriteWithColor(512, 512, bgColor, color2, stripes);
+	_background = stripedSpriteWithColor(512, 512, bgColor, color2, stripes);*/
 	_background->setPosition(visibleSize / 2);
 	Texture2D::TexParams p = { GL_LINEAR, GL_LINEAR,
 		GL_REPEAT, GL_REPEAT };
 	_background->getTexture()->setTexParameters(p);
-	_background->getTexture()->setAntiAliasTexParameters();
-	this->addChild(_background);
+	//_background->getTexture()->setAntiAliasTexParameters();
+	this->addChild(_background,-1);
 }
 
 Sprite* HelloWorld::stripedSpriteWithColor(float textureWidth, float textureHeight, Color4F bgColor, Color4F color2,
@@ -162,6 +163,7 @@ Sprite* HelloWorld::spriteWithColor(float textureWidth, float textureHeight,
 
 	// 3: Draw on texture
 
+
 	//draw gradient
 	_customCommand.init(rt->getGlobalZOrder());
 	_customCommand.func = CC_CALLBACK_0(HelloWorld::onDraw,
@@ -169,7 +171,7 @@ Sprite* HelloWorld::spriteWithColor(float textureWidth, float textureHeight,
 	auto renderer = Director::getInstance()->getRenderer();
 	renderer->addCommand(&_customCommand);
 
-	// add noise
+	//add noise
 	Sprite* noise = Sprite::create("Noise.png");
 	noise->setBlendFunc({ GL_DST_COLOR, GL_ZERO });
 	noise->setPosition(Vec2(textureWidth/2.0f, textureHeight/2.0f));
@@ -243,6 +245,7 @@ void HelloWorld::onDraw(float textureWidth, float textureHeight)
 		GL_FLOAT, GL_FALSE, 0, colors);
 	glBlendFunc(CC_BLEND_SRC, CC_BLEND_DST);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, static_cast<GLsizei>(nVertices));
+
 }
 
 void HelloWorld::onDrawStripes(float textureWidth, float textureHeight, int nStripes, Color4F color2)

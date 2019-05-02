@@ -82,9 +82,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	auto glview = director->getOpenGLView();
 	if (!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-		glview = GLViewImpl::createWithRect("Test", cocos2d::Rect(0, 0, mediumResolutionSize.width, mediumResolutionSize.height));
+		glview = GLViewImpl::createWithRect("Tiny Wings", cocos2d::Rect(0, 0, mediumResolutionSize.width, mediumResolutionSize.height));
 #else
-		glview = GLViewImpl::create("Test");
+		glview = GLViewImpl::create("Tiny Wings");
 #endif
 		director->setOpenGLView(glview);
 	}
