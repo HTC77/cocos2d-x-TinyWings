@@ -42,6 +42,7 @@ public:
 	// implement the "static create()" method manually
 	CREATE_FUNC(HelloWorld);
 	Size visibleSize;
+	Size winSize;
 	Vec2 origin;
 	void genBackground();
 	Sprite* _background;
@@ -54,9 +55,12 @@ public:
 	CustomCommand _customCommand;
 	CustomCommand _stripesCommand;
 	void onDraw(float textureWidth, float textureHeight);
-	void onDrawStripes(float textureWidth, float textureHeight, int nStripes, Color4F color2);
+	void onDrawStripes(float textureWidth, float textureHeight,
+		int nStripes, Color4F color2);
 	::Terrain* _terrain;
 	Sprite* _stripes;
+	PhysicsWorld* _world;
+	void onEnter() override;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

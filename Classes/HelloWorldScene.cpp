@@ -27,7 +27,14 @@ THE SOFTWARE.
 
 Scene* HelloWorld::createScene()
 {
-	return HelloWorld::create();
+	Scene* scene = Scene::createWithPhysics();
+	HelloWorld* layer = HelloWorld::create();
+	scene->addChild(layer);
+	PhysicsWorld* world = scene->getPhysicsWorld();
+	Vec2 gravity = Vec2(0, -98.0f);
+	world->setGravity(gravity);
+	world->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
+	return scene;
 }
 
 // Print useful error message instead of segfaulting when files are not there.
@@ -48,6 +55,7 @@ bool HelloWorld::init()
 	}
 
 	visibleSize = Director::getInstance()->getVisibleSize();
+	winSize = Director::getInstance()->getWinSize();
 	origin = Director::getInstance()->getVisibleOrigin();
 
 	/////////////////////////////
@@ -93,8 +101,8 @@ bool HelloWorld::init()
 	auto touchListener =
 		EventListenerTouchOneByOne::create();
 	touchListener->onTouchBegan = CC_CALLBACK_2(HelloWorld::touchBegan, this);
-	getEventDispatcher()->addEventListenerWithSceneGraphPriority(
-		touchListener, this);
+	getEventDispatcher()->addEventListenerWithFixedPriority(
+		touchListener, 27);
 
 	this->setGLProgram(
 		GLProgramCache::getInstance()->getGLProgram(
@@ -212,6 +220,17 @@ Color4F HelloWorld::randomBrightColor()
 bool HelloWorld::touchBegan(Touch* touch, Event* event)
 {
 	this->genBackground();
+
+	// ball
+	auto circleBody = PhysicsBody::createCircle(25);
+	circleBody->setDynamic(true);
+	auto sprite = Sprite::create();
+	sprite->setPosition(
+		Director::getInstance()->convertToGL(
+			touch->getLocationInView()));
+	sprite->setPhysicsBody(circleBody);
+	this->addChild(sprite);
+
 	return true;
 }
 
@@ -242,7 +261,6 @@ void HelloWorld::onDraw(float textureWidth, float textureHeight)
 	colors[nVertices++] = Color4F(0, 0, 0, gradientAlpha);
 	vertices[nVertices] = Vec2(textureWidth, textureHeight);
 	colors[nVertices++] = Color4F(0, 0, 0, gradientAlpha);
-
 
 	GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_COLOR | GL::VERTEX_ATTRIB_FLAG_POSITION);
 	glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 2,
@@ -324,4 +342,19 @@ void HelloWorld::onDrawStripes(float textureWidth, float textureHeight, int nStr
 	// 	GL_FLOAT, GL_FALSE, 0, colors);
 	// glBlendFunc(CC_BLEND_SRC, CC_BLEND_DST);
 	// glDrawArrays(GL_TRIANGLE_STRIP, 0, static_cast<GLsizei>(nVertices));
+}
+
+void HelloWorld::onEnter()
+{
+	Scene::onEnter();
+
+	_world = Director::getInstance()->getRunningScene()->getPhysicsWorld();
+
+	// wall
+	auto wall = Node::create();
+	auto wallBody = PhysicsBody::createEdgeBox(winSize,
+		PhysicsMaterial(0.1, 1.0, 0.0));
+	wall->setPosition(visibleSize/2);
+	wall->setPhysicsBody(wallBody);
+	this->addChild(wall);
 }
