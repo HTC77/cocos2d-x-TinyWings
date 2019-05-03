@@ -82,6 +82,7 @@ void ::Terrain::resetHillVertices()
 		}
 		prevFromKeyPointI = _fromKeyPointI;
 		prevToKeyPointI = _toKeyPointI;
+		this->resetPhysicsBody();
 	}
 }
 
@@ -103,6 +104,21 @@ void ::Terrain::onDrawHills()
 	glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2,
 		GL_FLOAT, GL_TRUE, 0, _hillTexCoords);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, static_cast<GLsizei>(_nHillVertices));
+}
+
+void ::Terrain::resetPhysicsBody()
+{
+	_body = Sprite::create();
+	for (int i = 0; i < _nBorderVertices - 1; ++i)
+	{
+		auto ep1 = Vec2(_borderVertices[i].x, _borderVertices[i].y);
+		auto ep2 = Vec2(_borderVertices[i + 1].x, _borderVertices[i + 1].y);
+		auto edgeSeg = PhysicsBody::createEdgeSegment(ep1, ep2);
+		auto edgeNode = Node::create();
+		edgeNode->setPhysicsBody(edgeSeg);
+		_body->addChild(edgeNode);
+	}
+	this->addChild(_body);
 }
 
 void ::Terrain::generateHills()

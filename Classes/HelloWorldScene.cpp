@@ -349,12 +349,4 @@ void HelloWorld::onEnter()
 	Scene::onEnter();
 
 	_world = Director::getInstance()->getRunningScene()->getPhysicsWorld();
-
-	// wall
-	auto wall = Node::create();
-	auto wallBody = PhysicsBody::createEdgeBox(winSize,
-		PhysicsMaterial(0.1, 1.0, 0.0));
-	wall->setPosition(visibleSize/2);
-	wall->setPhysicsBody(wallBody);
-	this->addChild(wall);
 }

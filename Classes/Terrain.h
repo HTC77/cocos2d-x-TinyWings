@@ -35,6 +35,9 @@ public:
 	Vec2 _hillTexCoords[kMaxHillVertices];
 	Vec2 _borderVertices[kMaxBorderVertices];
 	Sprite* _stripes;
+
+	void resetPhysicsBody();
+	Sprite* _body;
 };
 
 #endif // __TinyWings__Terrain__
