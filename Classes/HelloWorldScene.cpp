@@ -107,7 +107,12 @@ bool HelloWorld::init()
 		GLProgramCache::getInstance()->getGLProgram(
 			GLProgram::SHADER_NAME_POSITION_COLOR));
 
+	// hero
+	_hero = Hero::create();
+	_terrain->_batchNode->addChild(_hero);
+
 	scheduleUpdate();
+	
 	return true;
 }
 
@@ -236,9 +241,8 @@ bool HelloWorld::touchBegan(Touch* touch, Event* event)
 
 void HelloWorld::update(float delta)
 {
-	static int PIXELS_PER_SECOND = 100;
 	static float offsetX = 0;
-	offsetX += PIXELS_PER_SECOND * delta;
+	offsetX = _hero->getPositionX();
 	Size textureSize = _background->getTextureRect().size;
 	_background->setTextureRect(Rect(offsetX, 0,
 		textureSize.width, textureSize.height));

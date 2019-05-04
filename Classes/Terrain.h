@@ -41,6 +41,8 @@ public:
 
 	int _offsetX;
 	void setOffsetX(float newOffsetX);
+
+	SpriteBatchNode* _batchNode;
 };
 
 #endif // __TinyWings__Terrain__

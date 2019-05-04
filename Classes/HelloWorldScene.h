@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "cocos2d.h"
 #include "Terrain.h"
+#include "Hero.h"
 USING_NS_CC;
 
 class HelloWorld : public cocos2d::Scene
@@ -61,6 +62,8 @@ public:
 	Sprite* _stripes;
 	PhysicsWorld* _world;
 	void onEnter() override;
+
+	Hero* _hero;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
