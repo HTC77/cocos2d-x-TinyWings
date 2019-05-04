@@ -31,11 +31,11 @@ void ::Terrain::resetHillVertices()
 	static int prevToKeyPointI = -1;
 
 	// key point interval for drawing
-	while (_hillKeyPoints[_fromKeyPointI + 1].x < -winSize.width / 8 / this->getScale())
+	while (_hillKeyPoints[_fromKeyPointI + 1].x < _offsetX - winSize.width / 8 / this->getScale())
 	{
 		_fromKeyPointI++;
 	}
-	while (_hillKeyPoints[_toKeyPointI].x < winSize.width * 12 / 8 / this->getScale())
+	while (_hillKeyPoints[_toKeyPointI].x < _offsetX + winSize.width * 12 / 8 / this->getScale())
 	{
 		_toKeyPointI++;
 	}
@@ -108,8 +108,9 @@ void ::Terrain::onDrawHills()
 
 void ::Terrain::resetPhysicsBody()
 {
+	if (_body) this->removeChild(_body);
 	_body = Sprite::create();
-	for (int i = 0; i < _nBorderVertices - 1; ++i)
+	for (int i = 0; i < _nBorderVertices - 1; i+=4)
 	{
 		auto ep1 = Vec2(_borderVertices[i].x, _borderVertices[i].y);
 		auto ep2 = Vec2(_borderVertices[i + 1].x, _borderVertices[i + 1].y);
@@ -119,6 +120,13 @@ void ::Terrain::resetPhysicsBody()
 		_body->addChild(edgeNode);
 	}
 	this->addChild(_body);
+}
+
+void ::Terrain::setOffsetX(float newOffsetX)
+{
+	_offsetX = newOffsetX;
+	this->setPosition(Point(winSize.width / 12 - _offsetX * this->getScale(), 0));
+	this->resetHillVertices();
 }
 
 void ::Terrain::generateHills()

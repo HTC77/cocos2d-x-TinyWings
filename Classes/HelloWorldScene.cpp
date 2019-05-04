@@ -44,7 +44,6 @@ static void problemLoading(const char* filename)
 	printf("Depending on how you compiled you might have to add 'Resources/' in front of filenames in HelloWorldScene.cpp\n");
 }
 
-// on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
 	//////////////////////////////
@@ -108,7 +107,7 @@ bool HelloWorld::init()
 		GLProgramCache::getInstance()->getGLProgram(
 			GLProgram::SHADER_NAME_POSITION_COLOR));
 
-	//scheduleUpdate();
+	scheduleUpdate();
 	return true;
 }
 
@@ -141,6 +140,7 @@ void HelloWorld::genBackground()
 	_stripes = stripedSpriteWithColor(512, 512, bgColor, color2, stripes);
 	_stripes->setPosition(Vec2(visibleSize.width / 2, -visibleSize.height));
 	_stripes->getTexture()->setAntiAliasTexParameters();
+	_stripes->getTexture()->setTexParameters(p);
 	this->_terrain->_stripes = _stripes;
 	this->addChild(_stripes);
 }
@@ -242,6 +242,7 @@ void HelloWorld::update(float delta)
 	Size textureSize = _background->getTextureRect().size;
 	_background->setTextureRect(Rect(offsetX, 0,
 		textureSize.width, textureSize.height));
+	_terrain->setOffsetX(offsetX);
 }
 
 void HelloWorld::onDraw(float textureWidth, float textureHeight)
@@ -349,4 +350,5 @@ void HelloWorld::onEnter()
 	Scene::onEnter();
 
 	_world = Director::getInstance()->getRunningScene()->getPhysicsWorld();
+
 }

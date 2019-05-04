@@ -36,8 +36,11 @@ public:
 	Vec2 _borderVertices[kMaxBorderVertices];
 	Sprite* _stripes;
 
-	void resetPhysicsBody();
 	Sprite* _body;
+	void resetPhysicsBody();
+
+	int _offsetX;
+	void setOffsetX(float newOffsetX);
 };
 
 #endif // __TinyWings__Terrain__
