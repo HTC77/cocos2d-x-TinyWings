@@ -33,7 +33,6 @@ Scene* HelloWorld::createScene()
 	PhysicsWorld* world = scene->getPhysicsWorld();
 	Vec2 gravity = Vec2(0.0f, -224.0f);
 	world->setGravity(gravity);
-	world->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
 	return scene;
 }
 
@@ -249,6 +248,10 @@ void HelloWorld::update(float delta)
 	_hero->limitVelocity();
 
 	static float offsetX = 0;
+	static float scale = 1;
+	scale = (visibleSize.height * 3 / 4 / _hero->getPositionY());
+	if (scale > 1) scale = 1;
+	_terrain->setScale(scale);
 	offsetX = _hero->getPositionX();
 	Size textureSize = _background->getTextureRect().size;
 	_background->setTextureRect(Rect(offsetX, 0,
