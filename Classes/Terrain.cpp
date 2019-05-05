@@ -23,9 +23,9 @@ bool ::Terrain::init()
 		GLProgramCache::getInstance()->getGLProgram(
 			GLProgram::SHADER_NAME_POSITION_TEXTURE));
 
-	_batchNode = SpriteBatchNode::create("TinySeal.png");
-	this->addChild(_batchNode);
-	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("TinySeal.plist");
+	//_batchNode = SpriteBatchNode::create("TinySeal.png");
+	//this->addChild(_batchNode);
+	//SpriteFrameCache::getInstance()->addSpriteFramesWithFile("TinySeal.plist");
 
     return true;
 }

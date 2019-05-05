@@ -64,6 +64,10 @@ public:
 	void onEnter() override;
 
 	Hero* _hero;
+	bool _tabDown;
+	void touchEnded(Touch* touch, Event* event);
+	void touchCancelled(Touch* touch, Event* event);
+
 };
 
 #endif // __HELLOWORLD_SCENE_H__

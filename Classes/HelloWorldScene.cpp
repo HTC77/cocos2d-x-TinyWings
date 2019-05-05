@@ -31,7 +31,7 @@ Scene* HelloWorld::createScene()
 	HelloWorld* layer = HelloWorld::create();
 	scene->addChild(layer);
 	PhysicsWorld* world = scene->getPhysicsWorld();
-	Vec2 gravity = Vec2(0, -98.0f);
+	Vec2 gravity = Vec2(0.0f, -224.0f);
 	world->setGravity(gravity);
 	world->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
 	return scene;
@@ -100,6 +100,8 @@ bool HelloWorld::init()
 	auto touchListener =
 		EventListenerTouchOneByOne::create();
 	touchListener->onTouchBegan = CC_CALLBACK_2(HelloWorld::touchBegan, this);
+	touchListener->onTouchEnded = CC_CALLBACK_2(HelloWorld::touchEnded, this);
+	touchListener->onTouchCancelled = CC_CALLBACK_2(HelloWorld::touchCancelled, this);
 	getEventDispatcher()->addEventListenerWithFixedPriority(
 		touchListener, 27);
 
@@ -109,7 +111,9 @@ bool HelloWorld::init()
 
 	// hero
 	_hero = Hero::create();
-	_terrain->_batchNode->addChild(_hero);
+	_terrain->addChild(_hero);
+
+	_tabDown = false;
 
 	scheduleUpdate();
 	
@@ -224,23 +228,26 @@ Color4F HelloWorld::randomBrightColor()
 
 bool HelloWorld::touchBegan(Touch* touch, Event* event)
 {
+	_tabDown = true;
 	this->genBackground();
-
-	// ball
-	auto circleBody = PhysicsBody::createCircle(25);
-	circleBody->setDynamic(true);
-	auto sprite = Sprite::create();
-	sprite->setPosition(
-		Director::getInstance()->convertToGL(
-			touch->getLocationInView()));
-	sprite->setPhysicsBody(circleBody);
-	this->addChild(sprite);
-
 	return true;
 }
 
 void HelloWorld::update(float delta)
 {
+	if (_tabDown)
+	{
+		if (!_hero->_awake)
+		{
+			_hero->wake();
+			_tabDown = false;
+		}
+		else {
+			_hero->dive();
+		}
+	}else
+	_hero->limitVelocity();
+
 	static float offsetX = 0;
 	offsetX = _hero->getPositionX();
 	Size textureSize = _background->getTextureRect().size;
@@ -355,4 +362,14 @@ void HelloWorld::onEnter()
 
 	_world = Director::getInstance()->getRunningScene()->getPhysicsWorld();
 
+}
+
+void HelloWorld::touchEnded(Touch* touch, Event* event)
+{
+	_tabDown = false;
+}
+
+void HelloWorld::touchCancelled(Touch* touch, Event* event)
+{
+	_tabDown = false;
 }
